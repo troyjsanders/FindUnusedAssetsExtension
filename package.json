@@ -8,6 +8,7 @@
   },
   "icon": "./fua_icon.png",
   "repository": {"url": "https://github.com/durmazoguzhan/FUA.git"},
+  "publisher": "OguzhanDurmaz",
   "categories": [
     "Other"
   ],
