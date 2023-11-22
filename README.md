@@ -3,6 +3,10 @@
 FUA is a "Find and Remove Unused Assets" VS Code extension.
 You can check and remove/delete your project's unused assets/images.
 
+<p align=center>
+<a href="https://marketplace.visualstudio.com/items?itemName=OguzhanDurmaz.FUA"><img src="https://img.shields.io/visual-studio-marketplace/v/OguzhanDurmaz.FUA?color=%234c1&label=Visual%20Studio%20Marketplace"></a>
+</p>
+
 ## Features
 
 ### Supported Extensions
