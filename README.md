@@ -29,7 +29,7 @@ You can check and remove/delete your project's unused assets/images.
 ## Using
 
 - Open a workspace/folder in VS Code.
-- Sure that your workspace has "src" folder (because FUA working on src file).
+- Sure that your workspace has "src" folder (because FUA working on src folder).
 - Press 'F1' key and enter `Find Unused Assets` command.
 - After a short period of time You will see the `UnusedAssets.txt` file. You can check this file and delete the lines you don't want.
 - Lastly, Press 'F1' key and enter `Remove Unused Assets` command.
