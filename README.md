@@ -35,7 +35,7 @@ You can check and remove/delete your project's unused assets/images and React fi
     - `Find Unused Assets`: Identifies unused asset files without removing them.
     - `Remove Unused Assets`: Removes unused asset files (images, etc.).
     - `Remove Unused React Files`: Removes unused React files (.html, .css, .js, .jsx, .ts, .tsx).
-    - Remove All Unused Files: Removes both unused assets and React files.
+    - `Remove All Unused Files`: Removes both unused assets and React files.
 - After a short period, you'll see the results of the chosen action.
 
 **Enjoy!**
