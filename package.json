@@ -1,8 +1,8 @@
 {
   "name": "FUA",
   "displayName": "FindUnusedAssets",
-  "description": "Find & Remove Your JS/JSX Project's Unused Assets",
-  "version": "0.0.1",
+  "description": "Find & Remove Your React Project's Unused Assets",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -23,6 +23,14 @@
       {
         "command": "FUA.removeUnusedAssets",
         "title": "Remove Unused Assets"
+      },
+      {
+        "command": "FUA.removeUnusedReactFiles",
+        "title": "Remove Unused React Files"
+      },
+      {
+        "command": "FUA.removeAllUnusedFiles",
+        "title": "Remove All Unused Files"
       }
     ]
   },
