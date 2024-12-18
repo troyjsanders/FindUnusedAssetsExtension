@@ -121,11 +121,11 @@ function getFileName(uri) {
 }
 
 async function getAssets() {
-  return await vscode.workspace.findFiles("src/**/*.{png,jpg,jpeg,gif,svg}");
+  return await vscode.workspace.findFiles("src/**/*.{png,jpg,jpeg,gif,svg,mp4}");
 }
 
 async function getComponents() {
-  return await vscode.workspace.findFiles("src/**/*.{html,css,js,jsx}");
+  return await vscode.workspace.findFiles("src/**/*.{html,css,js,jsx,ts,tsx}");
 }
 
 async function hasSrcFolder() {
