@@ -32,10 +32,10 @@ You can check and remove/delete your project's unused assets/images and React fi
 - Open a workspace/folder in VS Code.
 - Ensure your workspace has a "src" folder (FUA works on the src folder).
 - Press 'F1' key and choose one of the following commands:
-- - `Find Unused Assets`: Identifies unused asset files without removing them.
-- - `Remove Unused Assets`: Removes unused asset files (images, etc.).
-- - `Remove Unused React Files`: Removes unused React files (.html, .css, .js, .jsx, .ts, .tsx).
-- - Remove All Unused Files: Removes both unused assets and React files.
+    - `Find Unused Assets`: Identifies unused asset files without removing them.
+    - `Remove Unused Assets`: Removes unused asset files (images, etc.).
+    - `Remove Unused React Files`: Removes unused React files (.html, .css, .js, .jsx, .ts, .tsx).
+    - Remove All Unused Files: Removes both unused assets and React files.
 - After a short period, you'll see the results of the chosen action.
 
 **Enjoy!**
