@@ -18,6 +18,7 @@ You can check and remove/delete your project's unused assets/images.
 - .png
 - .svg
 - .gif
+- .mp4
 
 #### Supported Component File Extensions
 
@@ -25,6 +26,8 @@ You can check and remove/delete your project's unused assets/images.
 - .css
 - .js
 - .jsx
+- .ts
+- .tsx
 
 ## Using
 

@@ -1,5 +1,6 @@
 const vscode = require("vscode");
-const { open, readFile, access, constants, unlink } = require("fs/promises");
+const { open, readFile, unlink } = require("fs/promises");
+
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -7,91 +8,99 @@ const { open, readFile, access, constants, unlink } = require("fs/promises");
 async function activate(context) {
   let disposableFindUnusedAssets = vscode.commands.registerCommand(
     "FUA.findUnusedAssets",
-    await findUnusedAssets
+    findUnusedAssets
   );
   let disposableRemoveUnusedAssets = vscode.commands.registerCommand(
     "FUA.removeUnusedAssets",
-    await removeUnusedAssets
+    removeUnusedAssets
+  );
+  let disposableRemoveUnusedReactFiles = vscode.commands.registerCommand(
+    "FUA.removeUnusedReactFiles",
+    removeUnusedReactFiles
+  );
+  let disposableRemoveAllUnusedFiles = vscode.commands.registerCommand(
+    "FUA.removeAllUnusedFiles",
+    removeAllUnusedFiles
   );
 
   context.subscriptions.push(disposableFindUnusedAssets);
   context.subscriptions.push(disposableRemoveUnusedAssets);
+  context.subscriptions.push(disposableRemoveUnusedReactFiles);
+  context.subscriptions.push(disposableRemoveAllUnusedFiles);
 }
 
 async function findUnusedAssets() {
-  if (await isFindable()) {
+  if (await isRemovable()) {
     const assets = await getAssets();
-    vscode.window.showInformationMessage("Total Asset Count: " + assets.length);
-    const components = await getComponents();
-    vscode.window.showInformationMessage("Total Component Count: " + components.length);
-    let unusedAssetPaths = [];
-
-    for (let i = 0; i < assets.length; i++) {
-      let fileName = getFileName(assets[i]);
-      if (!(await isFileUsing(fileName, components))) {
-        unusedAssetPaths.push(assets[i].fsPath);
+    const components = await getReactFiles();
+    const unusedAssets = await findUnusedFiles(assets, components);
+    
+    vscode.window.showInformationMessage(
+      `Found ${unusedAssets.length} unused assets.`
+    );
+    
+    // Optionally, you can show the list of unused assets
+    if (unusedAssets.length > 0) {
+      const result = await vscode.window.showQuickPick(['Yes', 'No'], {
+        placeHolder: 'Do you want to see the list of unused assets?'
+      });
+      if (result === 'Yes') {
+        vscode.window.showInformationMessage(unusedAssets.join('\n'));
       }
     }
-    await createUnusedAssetsFile(unusedAssetPaths);
-    vscode.window.showInformationMessage(
-      "Done! Unused Asset Files Count: " + unusedAssetPaths.length.toString()
-    );
   }
+}
+
+
+async function findUnusedFiles(files, components) {
+  let unusedFilePaths = [];
+  for (let i = 0; i < files.length; i++) {
+    let fileName = getFileName(files[i]);
+    if (!(await isFileUsing(fileName, components))) {
+      unusedFilePaths.push(files[i].fsPath);
+    }
+  }
+  return unusedFilePaths;
 }
 
 async function removeUnusedAssets() {
   if (await isRemovable()) {
-    const file = await open(getUnusedAssetsFilePath());
-    const unusedAssets = (await readFile(file)).toString().split("\n");
-    for (let i = 0; i < unusedAssets.length; i++) {
-      unlink(unusedAssets[i]);
-    }
-    await file.close();
-    unlink(getUnusedAssetsFilePath());
-    vscode.window.showInformationMessage("Done! All unused assets were deleted.");
+    const assets = await getAssets();
+    const components = await getReactFiles();
+    const unusedAssets = await findUnusedFiles(assets, components);
+    await removeFiles(unusedAssets);
+    vscode.window.showInformationMessage(`Removed ${unusedAssets.length} unused assets.`);
   }
 }
 
-async function isFindable() {
-  if (isWorkspaceOpen()) {
-    return await hasSrcFolder();
-  } else return false;
+async function removeUnusedReactFiles() {
+  if (await isRemovable()) {
+    const reactFiles = await getReactFiles();
+    const unusedReactFiles = await findUnusedFiles(reactFiles, reactFiles);
+    await removeFiles(unusedReactFiles);
+    vscode.window.showInformationMessage(`Removed ${unusedReactFiles.length} unused React files.`);
+  }
+}
+
+async function removeAllUnusedFiles() {
+  if (await isRemovable()) {
+    const assets = await getAssets();
+    const reactFiles = await getReactFiles();
+    const allFiles = [...assets, ...reactFiles];
+    const unusedFiles = await findUnusedFiles(allFiles, reactFiles);
+    await removeFiles(unusedFiles);
+    vscode.window.showInformationMessage(`Removed ${unusedFiles.length} unused files.`);
+  }
+}
+
+async function removeFiles(filePaths) {
+  for (let i = 0; i < filePaths.length; i++) {
+    await unlink(filePaths[i]);
+  }
 }
 
 async function isRemovable() {
-  if (isWorkspaceOpen() && (await hasSrcFolder()) && (await hasUnusedAssetsFile())) return true;
-  else return false;
-}
-
-async function hasUnusedAssetsFile() {
-  try {
-    await access(getUnusedAssetsFilePath(), constants.R_OK);
-    return true;
-  } catch (error) {
-    vscode.window.showErrorMessage(
-      "The UnusedAssets.txt file not found. Please run 'Find Unused Assets' command first."
-    );
-    return false;
-  }
-}
-
-async function createUnusedAssetsFile(assetPaths) {
-  try {
-    const file = await open(getUnusedAssetsFilePath(), "w");
-    await file.writeFile("");
-    if (assetPaths.length > 0) {
-      await file.appendFile(assetPaths[0]);
-      for (let i = 1; i < assetPaths.length; i++) {
-        await file.appendFile("\n");
-        await file.appendFile(assetPaths[i]);
-      }
-    }
-    await file.close();
-  } catch (error) {
-    vscode.window.showErrorMessage(
-      "Something went wrong when creating UnusedAssets.txt file: \n" + error.message
-    );
-  }
+  return isWorkspaceOpen() && await hasSrcFolder();
 }
 
 async function isFileUsing(fileName, components) {
@@ -112,10 +121,6 @@ async function isFileUsing(fileName, components) {
   return isUsing;
 }
 
-function getUnusedAssetsFilePath() {
-  return vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "UnusedAssets.txt").fsPath;
-}
-
 function getFileName(uri) {
   return uri.path.split("/").pop();
 }
@@ -124,7 +129,7 @@ async function getAssets() {
   return await vscode.workspace.findFiles("src/**/*.{png,jpg,jpeg,gif,svg,mp4}");
 }
 
-async function getComponents() {
+async function getReactFiles() {
   return await vscode.workspace.findFiles("src/**/*.{html,css,js,jsx,ts,tsx}");
 }
 
